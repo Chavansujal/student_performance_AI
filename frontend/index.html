@@ -1,149 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
+<script>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Performance AI</title>
+    async function predictMarks() {
 
-    <link rel="stylesheet" href="style.css">
+        const studytime = document.getElementById("studytime").value;
+        const absences = document.getElementById("absences").value;
+        const g1 = document.getElementById("g1").value;
+        const g2 = document.getElementById("g2").value;
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+        const loader = document.getElementById("loader");
+        const resultBox = document.getElementById("resultBox");
+        const score = document.getElementById("score");
+        const message = document.getElementById("message");
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-</head>
+        // Validation
 
-<body>
+        if (
+            studytime === "" ||
+            absences === "" ||
+            g1 === "" ||
+            g2 === ""
+        ) {
 
-    <!-- Background Animation -->
+            alert("Please fill all fields.");
 
-    <div class="bg-animation">
+            return;
+        }
 
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
+        // Show loader
 
-    </div>
+        loader.style.display = "block";
 
-    <!-- Main Container -->
+        resultBox.style.display = "none";
 
-    <div class="container">
+        try {
 
-        <!-- Logo -->
-
-        <div class="logo">
-            AI
-        </div>
-
-        <!-- Heading -->
-
-        <h1>Student Performance AI</h1>
-
-        <p class="subtitle">
-            Predict academic performance using Machine Learning
-        </p>
-
-        <!-- Form -->
-
-        <div class="form-grid">
-
-            <div class="input-group">
-
-                <label>Study Time</label>
-
-                <input type="number" id="studytime" placeholder="Enter study time">
-
-            </div>
-
-            <div class="input-group">
-
-                <label>Absences</label>
-
-                <input type="number" id="absences" placeholder="Enter absences">
-
-            </div>
-
-            <div class="input-group">
-
-                <label>G1 Marks</label>
-
-                <input type="number" id="g1" placeholder="Enter G1 marks">
-
-            </div>
-
-            <div class="input-group">
-
-                <label>G2 Marks</label>
-
-                <input type="number" id="g2" placeholder="Enter G2 marks">
-
-            </div>
-
-        </div>
-
-        <!-- Button -->
-
-        <button onclick="predictMarks()">
-            Predict Performance
-        </button>
-
-        <!-- Loader -->
-
-        <div class="loader" id="loader"></div>
-
-        <!-- Result -->
-
-        <div class="result-box" id="resultBox">
-
-            <div class="result-title">
-                Predicted Final Score
-            </div>
-
-            <div class="score" id="score">
-                0
-            </div>
-
-            <div class="message" id="message">
-
-            </div>
-
-        </div>
-
-        <!-- Footer -->
-
-        <div class="footer">
-            Powered by FastAPI + Machine Learning
-        </div>
-
-    </div>
-
-    <!-- JavaScript -->
-
-    <script>
-
-        async function predictMarks() {
-
-            const studytime = Number(document.getElementById("studytime").value);
-
-            const absences = Number(document.getElementById("absences").value);
-
-            const g1 = Number(document.getElementById("g1").value);
-
-            const g2 = Number(document.getElementById("g2").value);
-
-            const loader = document.getElementById("loader");
-
-            const resultBox = document.getElementById("resultBox");
-
-            loader.style.display = "block";
-
-            resultBox.style.display = "none";
-
-            try {
-
-                const response = await fetch("https://student-ai-backend.onrender.com/predict", {
-
+            const response = await fetch(
+                "https://student-ai-backend.onrender.com/predict",
+                {
                     method: "POST",
 
                     headers: {
@@ -152,60 +45,91 @@
 
                     body: JSON.stringify({
 
-                        studytime: studytime,
-                        absences: absences,
-                        g1: g1,
-                        g2: g2
+                        studytime: parseInt(studytime),
+
+                        absences: parseInt(absences),
+
+                        g1: parseInt(g1),
+
+                        g2: parseInt(g2)
 
                     })
-
-                });
-
-                const data = await response.json();
-
-                loader.style.display = "none";
-
-                resultBox.style.display = "block";
-
-                document.getElementById("score").innerHTML =
-                    data.predicted_g3;
-
-                let msg = "";
-
-                if (data.predicted_g3 >= 16) {
-
-                    msg = "Excellent academic performance predicted. Keep maintaining strong consistency and discipline.";
-
                 }
+            );
 
-                else if (data.predicted_g3 >= 10) {
+            // Handle server error
 
-                    msg = "Good performance predicted. Slight improvement in study consistency can boost results further.";
+            if (!response.ok) {
 
-                }
+                throw new Error("Server Error");
+            }
 
-                else {
+            const data = await response.json();
 
-                    msg = "Performance risk detected. Increase study time and reduce absences for better results.";
+            // Hide loader
 
-                }
+            loader.style.display = "none";
 
-                document.getElementById("message").innerHTML = msg;
+            // Show result box
+
+            resultBox.style.display = "block";
+
+            // Set score
+
+            score.innerHTML = data.predicted_g3;
+
+            // Performance messages
+
+            let msg = "";
+
+            if (data.predicted_g3 >= 16) {
+
+                msg = `
+                Excellent academic performance predicted.
+                Student is likely to achieve high final grades.
+                Keep maintaining consistency and discipline.
+                `;
 
             }
 
-            catch (error) {
+            else if (data.predicted_g3 >= 10) {
 
-                loader.style.display = "none";
-
-                alert("Backend connection failed.");
+                msg = `
+                Good academic performance predicted.
+                Slight improvement in study consistency
+                can increase final marks further.
+                `;
 
             }
+
+            else {
+
+                msg = `
+                Low academic performance predicted.
+                Increase study time, reduce absences,
+                and focus on regular revision.
+                `;
+            }
+
+            // Update message
+
+            message.innerHTML = msg;
 
         }
 
-    </script>
+        catch (error) {
 
-</body>
+            loader.style.display = "none";
 
-</html>
+            resultBox.style.display = "block";
+
+            score.innerHTML = "Error";
+
+            message.innerHTML =
+                "Backend connection failed. Please check if Render backend is running properly.";
+
+            console.log(error);
+        }
+    }
+
+</script>

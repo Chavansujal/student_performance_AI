@@ -4,7 +4,7 @@ async function predictMarks() {
         document.getElementById("hours").value;
 
     let response = await fetch(
-        `http://127.0.0.1:8000/predict?hours=${hours}`
+        `https://student-ai-backend.onrender.com/predict?hours=${hours}`
     );
 
     let data = await response.json();

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance AI</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Background Animation -->
+
+    <div class="bg-animation">
+
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+
+    </div>
+
+    <!-- Main Container -->
+
+    <div class="container">
+
+        <!-- Logo -->
+
+        <div class="logo">
+            AI
+        </div>
+
+        <!-- Heading -->
+
+        <h1>Student Performance AI</h1>
+
+        <p class="subtitle">
+            Predict academic performance using Machine Learning
+        </p>
+
+        <!-- Form -->
+
+        <div class="form-grid">
+
+            <div class="input-group">
+
+                <label>Study Time</label>
+
+                <input type="number" id="studytime" placeholder="Enter study time">
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Absences</label>
+
+                <input type="number" id="absences" placeholder="Enter absences">
+
+            </div>
+
+            <div class="input-group">
+
+                <label>G1 Marks</label>
+
+                <input type="number" id="g1" placeholder="Enter G1 marks">
+
+            </div>
+
+            <div class="input-group">
+
+                <label>G2 Marks</label>
+
+                <input type="number" id="g2" placeholder="Enter G2 marks">
+
+            </div>
+
+        </div>
+
+        <!-- Button -->
+
+        <button onclick="predictMarks()">
+            Predict Performance
+        </button>
+
+        <!-- Loader -->
+
+        <div class="loader" id="loader"></div>
+
+        <!-- Result -->
+
+        <div class="result-box" id="resultBox">
+
+            <div class="result-title">
+                Predicted Final Score
+            </div>
+
+            <div class="score" id="score">
+                0
+            </div>
+
+            <div class="message" id="message">
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+
+        <div class="footer">
+            Powered by FastAPI + Machine Learning
+        </div>
+
+    </div>
+
+    <!-- JavaScript -->
+
+    <script>
+
+        async function predictMarks() {
+
+            const studytime = Number(document.getElementById("studytime").value);
+
+            const absences = Number(document.getElementById("absences").value);
+
+            const g1 = Number(document.getElementById("g1").value);
+
+            const g2 = Number(document.getElementById("g2").value);
+
+            const loader = document.getElementById("loader");
+
+            const resultBox = document.getElementById("resultBox");
+
+            loader.style.display = "block";
+
+            resultBox.style.display = "none";
+
+            try {
+
+                const response = await fetch("http://127.0.0.1:8000/predict", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        studytime: studytime,
+                        absences: absences,
+                        g1: g1,
+                        g2: g2
+
+                    })
+
+                });
+
+                const data = await response.json();
+
+                loader.style.display = "none";
+
+                resultBox.style.display = "block";
+
+                document.getElementById("score").innerHTML =
+                    data.predicted_g3;
+
+                let msg = "";
+
+                if (data.predicted_g3 >= 16) {
+
+                    msg = "Excellent academic performance predicted. Keep maintaining strong consistency and discipline.";
+
+                }
+
+                else if (data.predicted_g3 >= 10) {
+
+                    msg = "Good performance predicted. Slight improvement in study consistency can boost results further.";
+
+                }
+
+                else {
+
+                    msg = "Performance risk detected. Increase study time and reduce absences for better results.";
+
+                }
+
+                document.getElementById("message").innerHTML = msg;
+
+            }
+
+            catch (error) {
+
+                loader.style.display = "none";
+
+                alert("Backend connection failed.");
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
